@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Customer Management</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            width: 100%;
+            min-height: 100%;
+            overflow: auto;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f3f7ff 0%, #eef4ff 100%);
+            color: #1c2430;
+        }
+
+        .page-shell {
+            width: min(1400px, 96vw);
+            min-height: 100vh;
+            height: auto;
+            margin: 0 auto;
+            padding: 12px 16px 10px;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+
+        .topbar {
+            background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 14px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 12px 28px rgba(37, 99, 235, 0.2);
+            margin-bottom: 14px;
+            flex-shrink: 0;
+        }
+
+        .topbar h2 {
+            margin: 0;
+            font-size: clamp(1.3rem, 1.8vw, 2rem);
+            font-weight: 700;
+        }
+
+        .topbar .badge {
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.18);
+            border-radius: 999px;
+            padding: 6px 12px;
+            font-size: 0.72rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .layout {
+            display: flex;
+            gap: 18px;
+            align-items: stretch;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .panel {
+            background: rgba(255,255,255,0.88);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 18px;
+            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+            padding: 10px 12px;
+            min-height: 0;
+        }
+
+        .panel:first-child {
+            flex: 0 0 30%;
+        }
+
+        .panel:last-child {
+            flex: 0 0 70%;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            min-height: 30px;
+        }
+
+        .card-header h3 {
+            margin: 0;
+            font-size: 1.05rem;
+            color: #10213d;
+        }
+
+        .mini-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            background: #dbeafe;
+            color: #1d4ed8;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        form {
+            display: grid;
+            gap: 6px;
+        }
+
+        .field {
+            display: grid;
+            gap: 4px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #334155;
+            line-height: 1.2;
+        }
+
+        input, textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 0.86rem;
+            background: #f8fafc;
+            color: #0f172a;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+            background: white;
+        }
+
+        input.invalid, textarea.invalid {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.08);
+            background: #fff5f5;
+        }
+
+        .error-text {
+            min-height: 18px;
+            color: #dc2626;
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+
+        textarea {
+            min-height: 64px;
+            resize: vertical;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            border: none;
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 0.84rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+        }
+
+        .primary-btn {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            color: white;
+            box-shadow: 0 12px 20px rgba(37, 99, 235, 0.25);
+        }
+
+        .secondary-btn {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .delete-btn {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .icon-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            font-size: 0.9rem;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .table-wrap {
+            overflow: hidden;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            flex: 1;
+            min-height: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            table-layout: fixed;
+        }
+
+        th, td {
+            padding: 9px 10px;
+            text-align: left;
+            border-bottom: 1px solid #edf2f7;
+            vertical-align: middle;
+            font-size: 0.75rem;
+            line-height: 1.3;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        th {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            font-size: 0.69rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        tbody tr {
+            transition: background 0.15s ease;
+        }
+
+        tbody tr:hover {
+            background: #f8fbff;
+        }
+
+        .table-actions {
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+            min-width: 70px;
+        }
+
+        .small-btn {
+            padding: 8px 12px;
+            font-size: 0.82rem;
+            border-radius: 10px;
+        }
+
+        .edit-btn {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .delete-row-btn {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .toolbar {
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: flex-end;
+            flex-shrink: 0;
+        }
+
+        .toolbar button {
+            min-width: 150px;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.45);
+            z-index: 1000;
+        }
+
+        .modal.hidden {
+            display: none;
+        }
+
+        .modal-content {
+            width: min(520px, 86vw);
+            background: rgba(25, 35, 52, 0.96);
+            color: #ffffff;
+            border-radius: 14px;
+            box-shadow: 0 20px 45px rgba(15, 23, 42, 0.35);
+            padding: 20px 22px 18px;
+        }
+
+        .modal-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin: 0 0 18px;
+            text-align: center;
+            color: #f8fafc;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+        }
+
+        .modal-actions .primary-btn,
+        .modal-actions .secondary-btn {
+            min-width: 120px;
+        }
+
+        @media (max-width: 980px) {
+            .page-shell {
+                height: auto;
+                min-height: 100vh;
+            }
+
+            .layout {
+                flex-direction: column;
+            }
+
+            .panel:first-child,
+            .panel:last-child {
+                flex: 1 1 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-shell">
+        <div class="topbar">
+            <h2>Customer Management</h2>
+            <span class="badge">Bank Portal</span>
+        </div>
+
+        <div id="deleteModal" class="modal hidden" aria-modal="true" role="dialog">
+            <div class="modal-content">
+                <p class="modal-title">Are you sure you want to delete this customer?</p>
+                <div class="modal-actions">
+                    <button type="button" id="confirmDeleteBtn" class="primary-btn">OK</button>
+                    <button type="button" id="cancelDeleteBtn" class="secondary-btn">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <button class="primary-btn" onclick="loadCustomers()">Refresh Customers</button>
+        </div>
+
+        <div class="layout">
+            <div class="panel">
+                <div class="card-header">
+                    <h3 id="formTitle">Create Customer</h3>
+                    <span class="mini-pill" id="formBadge">New</span>
+                </div>
+
+                <form id="customerForm" novalidate>
+                    <div class="field">
+                        <label for="first_name">First Name</label>
+                        <input id="first_name" name="first_name" type="text" />
+                        <div id="first_name_error" class="error-text"></div>
+                    </div>
+                    <div class="field">
+                        <label for="last_name">Last Name</label>
+                        <input id="last_name" name="last_name" type="text" />
+                        <div id="last_name_error" class="error-text"></div>
+                    </div>
+                    <div class="field">
+                        <label for="email">Email</label>
+                        <input id="email" name="email" type="email" />
+                        <div id="email_error" class="error-text"></div>
+                    </div>
+                    <div class="field">
+                        <label for="phone">Phone</label>
+                        <input id="phone" name="phone" type="text" />
+                        <div id="phone_error" class="error-text"></div>
+                    </div>
+                    <div class="field">
+                        <label for="address">Address</label>
+                        <textarea id="address" name="address"></textarea>
+                        <div id="address_error" class="error-text"></div>
+                    </div>
+                    <div class="button-row">
+                        <button type="submit" class="primary-btn" id="submitButton">Save Customer</button>
+                        <button type="button" class="secondary-btn" id="cancelButton" onclick="resetForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="panel">
+                <div class="card-header">
+                    <h3>Customer List</h3>
+                    <span class="mini-pill" id="customerCount">0</span>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Address</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customerTableBody">
+                            <tr>
+                                <td colspan="7">No data loaded.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8081/api/v1/customers';
+        let editingCustomerId = null;
+
+        function getCustomerValue(customer, key, fallback = '') {
+            return customer[key] ?? customer[fallback] ?? '';
+        }
+
+        const FIELD_RULES = {
+            first_name: {
+                message: 'Please enter a valid name.',
+                validate: (value) => {
+                    const trimmed = value.trim();
+                    return trimmed.length >= 1 && trimmed.length <= 50 && /^[A-Za-z\s'-]+$/.test(trimmed);
+                }
+            },
+            last_name: {
+                message: 'Please enter a valid name.',
+                validate: (value) => {
+                    const trimmed = value.trim();
+                    return trimmed.length >= 1 && trimmed.length <= 50 && /^[A-Za-z\s'-]+$/.test(trimmed);
+                }
+            },
+            email: {
+                message: 'Please enter a valid email address.',
+                validate: (value) => {
+                    const trimmed = value.trim();
+                    return trimmed.length > 0 && !/\s/.test(trimmed) && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+                }
+            },
+            phone: {
+                message: 'Please enter a valid phone number.',
+                validate: (value) => {
+                    const trimmed = value.trim();
+                    if (!trimmed) return false;
+                    const digits = trimmed.replace(/\D/g, '');
+                    return /^\+?[0-9()\-\s]+$/.test(trimmed) && digits.length >= 7 && digits.length <= 12;
+                }
+            },
+            address: {
+                message: 'Please enter a valid address.',
+                validate: (value) => {
+                    const trimmed = value.trim();
+                    return trimmed.length >= 5 && trimmed.length <= 250;
+                }
+            }
+        };
+
+        function updateCounters(count) {
+            document.getElementById('customerCount').textContent = count;
+        }
+
+        function clearFieldError(fieldId) {
+            const input = document.getElementById(fieldId);
+            const errorNode = document.getElementById(`${fieldId}_error`);
+            if (input) input.classList.remove('invalid');
+            if (errorNode) errorNode.textContent = '';
+        }
+
+        function showFieldError(fieldId, message) {
+            const input = document.getElementById(fieldId);
+            const errorNode = document.getElementById(`${fieldId}_error`);
+            if (input) input.classList.add('invalid');
+            if (errorNode) errorNode.textContent = message;
+        }
+
+        function validateField(fieldId) {
+            const field = FIELD_RULES[fieldId];
+            if (!field) return true;
+
+            const input = document.getElementById(fieldId);
+            const value = input ? input.value : '';
+
+            if (field.validate(value)) {
+                clearFieldError(fieldId);
+                return true;
+            }
+
+            showFieldError(fieldId, field.message);
+            return false;
+        }
+
+        function validateForm() {
+            let isValid = true;
+            Object.keys(FIELD_RULES).forEach((fieldId) => {
+                if (!validateField(fieldId)) {
+                    isValid = false;
+                }
+            });
+            return isValid;
+        }
+
+        function resetForm() {
+            editingCustomerId = null;
+            document.getElementById('customerForm').reset();
+            Object.keys(FIELD_RULES).forEach((fieldId) => clearFieldError(fieldId));
+            document.getElementById('formTitle').textContent = 'Create Customer';
+            document.getElementById('submitButton').textContent = 'Save Customer';
+            document.getElementById('formBadge').textContent = 'New';
+        }
+
+        function fillForm(customer) {
+            document.getElementById('first_name').value = getCustomerValue(customer, 'first_name', 'firstName');
+            document.getElementById('last_name').value = getCustomerValue(customer, 'last_name', 'lastName');
+            document.getElementById('email').value = getCustomerValue(customer, 'email');
+            document.getElementById('phone').value = getCustomerValue(customer, 'phone');
+            document.getElementById('address').value = getCustomerValue(customer, 'address');
+            Object.keys(FIELD_RULES).forEach((fieldId) => clearFieldError(fieldId));
+            editingCustomerId = customer.id;
+            document.getElementById('formTitle').textContent = 'Update Customer';
+            document.getElementById('submitButton').textContent = 'Update Customer';
+            document.getElementById('formBadge').textContent = 'Edit';
+        }
+
+        let pendingDeleteId = null;
+
+        function openDeleteModal(customerId) {
+            pendingDeleteId = customerId;
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            pendingDeleteId = null;
+            document.getElementById('deleteModal').classList.add('hidden');
+        }
+
+        function bindTableActions() {
+            document.querySelectorAll('.edit-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const row = button.closest('tr');
+                    const customer = {
+                        id: Number(row.dataset.id),
+                        first_name: row.dataset.firstName || '',
+                        last_name: row.dataset.lastName || '',
+                        email: row.dataset.email || '',
+                        phone: row.dataset.phone || '',
+                        address: row.dataset.address || ''
+                    };
+                    fillForm(customer);
+                });
+            });
+
+            document.querySelectorAll('.delete-row-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const customerId = Number(button.dataset.id);
+                    openDeleteModal(customerId);
+                });
+            });
+        }
+
+        async function loadCustomers() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch customers');
+                }
+
+                const customers = await response.json();
+                const tbody = document.getElementById('customerTableBody');
+                updateCounters(customers.length);
+
+                if (!customers.length) {
+                    tbody.innerHTML = '<tr><td colspan="7">No customers found.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = customers.map(customer => `
+                    <tr
+                        data-id="${customer.id ?? ''}"
+                        data-first-name="${getCustomerValue(customer, 'first_name', 'firstName')}"
+                        data-last-name="${getCustomerValue(customer, 'last_name', 'lastName')}"
+                        data-email="${getCustomerValue(customer, 'email')}"
+                        data-phone="${getCustomerValue(customer, 'phone')}"
+                        data-address="${getCustomerValue(customer, 'address')}"
+                    >
+                        <td>${customer.id ?? ''}</td>
+                        <td>${getCustomerValue(customer, 'first_name', 'firstName')}</td>
+                        <td>${getCustomerValue(customer, 'last_name', 'lastName')}</td>
+                        <td>${getCustomerValue(customer, 'email')}</td>
+                        <td>${getCustomerValue(customer, 'phone')}</td>
+                        <td>${getCustomerValue(customer, 'address')}</td>
+                        <td>
+                            <div class="table-actions">
+                                <button type="button" class="edit-btn icon-btn" title="Edit customer" aria-label="Edit customer">✎</button>
+                                <button type="button" class="delete-row-btn icon-btn" data-id="${customer.id ?? ''}" title="Delete customer" aria-label="Delete customer">🗑</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+
+                bindTableActions();
+            } catch (error) {
+                document.getElementById('customerTableBody').innerHTML = `
+                    <tr><td colspan="7" style="color:red;">Error: ${error.message}</td></tr>
+                `;
+            }
+        }
+
+        async function deleteCustomer(id) {
+            try {
+                const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                if (!response.ok) {
+                    throw new Error('Delete failed');
+                }
+
+                resetForm();
+                await loadCustomers();
+            } catch (error) {
+                alert(error.message);
+            } finally {
+                closeDeleteModal();
+            }
+        }
+
+        document.getElementById('confirmDeleteBtn').addEventListener('click', async () => {
+            if (pendingDeleteId !== null && pendingDeleteId !== undefined) {
+                await deleteCustomer(pendingDeleteId);
+            }
+        });
+
+        document.getElementById('cancelDeleteBtn').addEventListener('click', closeDeleteModal);
+
+        Object.keys(FIELD_RULES).forEach((fieldId) => {
+            const input = document.getElementById(fieldId);
+            if (!input) return;
+            input.addEventListener('blur', () => validateField(fieldId));
+            input.addEventListener('input', () => {
+                if (input.classList.contains('invalid')) {
+                    validateField(fieldId);
+                }
+            });
+        });
+
+        document.getElementById('customerForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            if (!validateForm()) {
+                return;
+            }
+
+            const payload = {
+                first_name: document.getElementById('first_name').value.trim(),
+                last_name: document.getElementById('last_name').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                address: document.getElementById('address').value.trim()
+            };
+
+            try {
+                const url = editingCustomerId ? `${API_URL}/${editingCustomerId}` : API_URL;
+                const method = editingCustomerId ? 'PUT' : 'POST';
+                const response = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || 'Save failed');
+                }
+
+                resetForm();
+                await loadCustomers();
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+
+        resetForm();
+        loadCustomers();
+    </script>
+</body>
+</html>
