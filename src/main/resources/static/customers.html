@@ -601,7 +601,7 @@
 
         async function loadCustomers() {
             try {
-                const response = await fetch(API_URL);
+                const response = await fetch(API_URL, { cache: 'no-store' });
                 if (!response.ok) {
                     throw new Error('Failed to fetch customers');
                 }
@@ -649,7 +649,7 @@
 
         async function deleteCustomer(id) {
             try {
-                const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE', cache: 'no-store' });
                 if (!response.ok) {
                     throw new Error('Delete failed');
                 }
@@ -703,7 +703,8 @@
                 const response = await fetch(url, {
                     method,
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify(payload),
+                    cache: 'no-store'
                 });
 
                 if (!response.ok) {
